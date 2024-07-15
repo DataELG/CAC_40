@@ -1,0 +1,8 @@
+sqlalchemy
+pandas
+numpy
+azure-storage-blob
+requests
+beautifulsoup4
+fake-useragent
+python-dotenv
