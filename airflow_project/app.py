@@ -1,5 +1,4 @@
-'''''''
-# A CONSERVER 
+# A CONSERVER
 
 from dotenv import load_dotenv
 import os
@@ -15,12 +14,6 @@ fernet_key = os.getenv('AIRFLOW__CORE__FERNET_KEY')
 secret_key = os.getenv('AIRFLOW__WEBSERVER__SECRET_KEY')
 acr_username = os.getenv('ACR_USERNAME')
 acr_password = os.getenv('ACR_PASSWORD')
-
-logging.basicConfig(level=logging.INFO)
-
-''''''
-
-
 
 logging.basicConfig(level=logging.INFO)
 
