@@ -1,0 +1,5 @@
+docker build -t cac40container . 
+docker stop cac40container
+docker rm cac40container
+docker run -d -p 8000:8000 --name cac40container cac40container
+docker logs 'cac40container'   

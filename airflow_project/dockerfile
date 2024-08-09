@@ -14,4 +14,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Définit la commande par défaut à exécuter lorsque le conteneur démarre
+
 CMD ["python", "app.py"]

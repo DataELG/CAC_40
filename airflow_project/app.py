@@ -17,6 +17,7 @@ acr_password = os.getenv('ACR_PASSWORD')
 
 logging.basicConfig(level=logging.INFO)
 
+
 def main():
     logging.info("Script started")
     try:
@@ -25,6 +26,9 @@ def main():
     except Exception as e:
         logging.error(f"An error occurred: {e}")
 
+
 if __name__ == '__main__':
     main()
     logging.info("Script finished")
+
+#az container create --resource-group ressource_cac40 --name mycac40container --image containercac40registry.azurecr.io/cac40container:latest --cpu 2 --memory 4 --registry-login-server containercac40registry.azurecr.io --registry-username containercac40registry --registry-password mXLPDTLdIhCxnZ2nzjdUt6xe1WIJVjWA5dVpqDn0ld+ACRCgFuMT --dns-name-label mycac40container --ports 8000

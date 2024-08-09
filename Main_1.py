@@ -28,7 +28,7 @@ closing_list = []
 volume_list = []
 
 #url = "https://www.boursorama.com/bourse/action/graph/ws/GetTicksEOD?symbol=1rPRCO&length=30&period=0&guid="
-url = 'https://www.boursorama.com/bourse/action/graph/ws/GetTicksEOD?symbol=1rPRCO&length=3650&period=0&guid='
+url = 'https://www.boursorama.com/bourse/action/graph/ws/GetTicksEOD?symbol=1rPRCO&length=365&period=7&guid='
 response = requests.get(url)
 if response.status_code == 200:
     response_json = response.json()
@@ -57,7 +57,7 @@ df_month = pd.DataFrame({'Day' : day_list,
 })
 
 print(df_month)
-df_month.to_csv('/Users/manu/Desktop/SUP/Cac40/Results/10Years_Cointreau.csv', index=False)
+#df_month.to_csv('/Users/manu/Desktop/SUP/Cac40/Results/10Years_Cointreau.csv', index=False)
     
 # Interpretation JSON 
 # d = day
