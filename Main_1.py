@@ -15,10 +15,10 @@ import pandas as pd
 date_reference = datetime(1970, 1, 1)
 
 # Ajouter le nombre de jours souhaité à la date de référence
-date_result = date_reference + timedelta(days=19821)
-date_formatee = date_result.strftime("%Y-%m-%d") # Reformatage
+# date_result = date_reference + timedelta(days=19821)
+# date_formatee = date_result.strftime("%Y-%m-%d") # Reformatage
 
-print("Date correspondante:", date_formatee)
+# print("Date correspondante:", date_formatee)
 
 day_list = []
 opening_list = []
@@ -28,7 +28,7 @@ closing_list = []
 volume_list = []
 
 #url = "https://www.boursorama.com/bourse/action/graph/ws/GetTicksEOD?symbol=1rPRCO&length=30&period=0&guid="
-url = 'https://www.boursorama.com/bourse/action/graph/ws/GetTicksEOD?symbol=1rPRCO&length=365&period=7&guid='
+url = 'https://www.boursorama.com/bourse/action/graph/ws/GetTicksEOD?symbol=1rPRCO&length=3650&period=1&guid='
 response = requests.get(url)
 if response.status_code == 200:
     response_json = response.json()

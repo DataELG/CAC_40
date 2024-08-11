@@ -1,5 +1,8 @@
-from sqlalchemy import create_engine, MetaData, Table
+from sqlalchemy import create_engine, MetaData, Table, select
 from sqlalchemy.orm import sessionmaker
+from datetime import date
+
+today = date.today()
 
 def create_session(table_name) :
     connection_url = (
@@ -14,6 +17,19 @@ def create_session(table_name) :
     Session = sessionmaker(bind=engine)
     session = Session()
     return session, table
+
+def fetch_new_companies(companies_table, session) :
+    '''
+    Return a list of companies added today
+    '''
+    stmt = select(companies_table.c.BOURSORAMA_CIE_ID).where(companies_table.c.ENTRY_DATE == today)
+    result = session.execute(stmt)
+    result_list = [row[0] for row in result]
+    return result_list
+
+# def get_id(companie_id) :
+    
+    
 
 
 def insert_company(companies_table, companie_name, boursorama_cie_id, entry_date, session):
