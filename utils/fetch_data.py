@@ -5,6 +5,13 @@ from utils.bdd_functions import *
 
 today = date.today()
 
+def get_date(date) :
+    date_reference = datetime(1970, 1, 1)
+    day_clean = date_reference + timedelta(days=date)
+    day_formatee = day_clean.strftime("%Y-%m-%d")
+    return day_formatee
+
+
 def fetch_companies_info() :
     companies_dict = {}
     for i in range(1,3) :
@@ -27,15 +34,22 @@ def fetch_companies_info() :
         return companies_dict
     
     
+def fetch_data(boursorama_cie_ID, type) :
+    '''
+    Arguments : Companies_id
+    Type : history or streaming
+    Return dictionnary with data
+    
+    '''
+    
+    if type == 'history' : 
+        url = f'https://www.boursorama.com/bourse/action/graph/ws/GetTicksEOD?symbol={boursorama_cie_ID}&length=3650&period=1&guid='
+        
+    if type == 'streaming' :
+        url = f'https://www.boursorama.com/bourse/action/graph/ws/GetTicksEOD?symbol={boursorama_cie_ID}&length=1&period=0&guid='
 
-    
-    
-def fetch_history(companie_id) :
-    
+        
     dict_result_history = {}
-    date_reference = datetime(1970, 1, 1)
-
-# Ajouter le nombre de jours souhaité à la date de référence
 
     day_list = []
     opening_list = []
@@ -44,15 +58,13 @@ def fetch_history(companie_id) :
     closing_list = []
     volume_list = []
 
-    url = f'https://www.boursorama.com/bourse/action/graph/ws/GetTicksEOD?symbol={companie_id}&length=3650&period=1&guid='
     response = requests.get(url)
     if response.status_code == 200:
         response_json = response.json()
         data = response_json['d']['QuoteTab']
         for ligne in  data : 
             day = ligne['d']
-            day_clean = date_reference + timedelta(days=day)
-            day_formatee = day_clean.strftime("%Y-%m-%d")
+            day_formatee = get_date(day) 
             day_list.append(day_formatee)
             opening_list.append(ligne['o'])
             highest_list.append(ligne['h'])
@@ -68,3 +80,5 @@ def fetch_history(companie_id) :
             dict_result_history['Closing'] = closing_list
             dict_result_history['Volume'] = volume_list
             return dict_result_history
+
+    
