@@ -43,7 +43,7 @@ def fetch_data(boursorama_cie_ID, type) :
     '''
     
     if type == 'history' : 
-        url = f'https://www.boursorama.com/bourse/action/graph/ws/GetTicksEOD?symbol={boursorama_cie_ID}&length=3650&period=1&guid='
+        url = f'https://www.boursorama.com/bourse/action/graph/ws/GetTicksEOD?symbol={boursorama_cie_ID}&length=1095&period=1&guid='
         
     if type == 'streaming' :
         url = f'https://www.boursorama.com/bourse/action/graph/ws/GetTicksEOD?symbol={boursorama_cie_ID}&length=1&period=0&guid='

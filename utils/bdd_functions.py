@@ -1,9 +1,18 @@
-from fetch_data import *
-from sqlalchemy import create_engine, MetaData, Table, select, delete
+from utils.fetch_functions import *
+from datetime import datetime, timedelta
+from sqlalchemy import create_engine, MetaData, Table, select, delete, update
 from sqlalchemy.orm import sessionmaker
 from datetime import date
 
-today = date.today()
+today = date.today()    
+
+
+def get_date(date) :
+    date_reference = datetime(1970, 1, 1)
+    day_clean = date_reference + timedelta(days=date)
+    #day_formatee = day_clean.strftime("%Y-%m-%d")
+    return day_clean
+
 
 def create_session(table_name) :
     connection_url = (
@@ -46,8 +55,8 @@ def get_id(companies_table, boursorama_id, companie_session) :
     Return the ID of the companie
     '''
     stmt = select(companies_table.c.ID).where(companies_table.c.BOURSORAMA_CIE_ID == boursorama_id)
-    companie_session.execute(stmt)
-    companie_session.commit()
+    result = companie_session.execute(stmt).scalar_one_or_none()
+    return result
     
 
 def insert_company(companies_table, companie_name, boursorama_cie_id, entry_date, session):
@@ -70,12 +79,10 @@ def insert_history(history_table, session, companie_id,data):
     
     if existing_company is None:
         # Préparer l'insertion
-        for i in range(len(data)) :
-            day = data['Day'][i]
-            date_hist = get_date(day)
+        for i in range(len(data['Day'])) :
             insert_stmt = history_table.insert().values(
                 COMPANIE_ID=companie_id,
-                DATE=date_hist,
+                DATE=data['Day'][i],
                 OPENING=data['Opening'][i],
                 HIGHEST=data['Highest'][i],
                 LOWEST=data['Lowest'][i],
@@ -93,7 +100,7 @@ def insert_streaming(streaming_table, session, companie_id,data):
         # Préparer l'insertion
         for i in range(len(data)) :
             day = data['Day'][i]
-            date_hist = get_date(day)
+            date_hist = get_date(int(day))
             insert_stmt = streaming_table.insert().values(
                 COMPANIE_ID=companie_id,
                 DATE=date_hist,
@@ -108,6 +115,14 @@ def insert_streaming(streaming_table, session, companie_id,data):
             
             
 def delete_streaming_data(nbre_jours, session, streaming_table) :
-    delete_stmt = delete(streaming_table).where(streaming_table.c.DATE < nbre_jours)
+    date = datetime.now() - timedelta(days=nbre_jours)
+    delete_stmt = delete(streaming_table).where(streaming_table.c.DATE < date)
     session.execute(delete_stmt)
     session.commit()
+    
+def update_exit_date(session, companies_table,missing_element) :
+    stmt = update(companies_table).where(companies_table.c.BOURSORAMA_CIE_ID == missing_element).values(EXIT_DATE=today)
+    session.execute(stmt)
+    session.commit()
+
+
