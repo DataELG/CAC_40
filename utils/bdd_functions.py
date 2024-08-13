@@ -39,7 +39,7 @@ def fetch_new_companies(companies_table, session) :
     return result_list
 
 
-def fetch_CAC40_cie(companies_table, session) :
+def fetch_active_CAC40_cie(companies_table, session) :
     '''
     Return a list of companies added today
     '''
@@ -47,6 +47,17 @@ def fetch_CAC40_cie(companies_table, session) :
     result = session.execute(stmt)
     result_list = [row[0] for row in result]
     return result_list
+
+
+def fetch_all_CAC40_cie(companies_table, session) :
+    '''
+    Return a list of CAC cie (activve one and ancient one
+    '''
+    stmt = select(companies_table.c.BOURSORAMA_CIE_ID)
+    result = session.execute(stmt)
+    result_list = [row[0] for row in result]
+    return result_list
+    
 
 
 
@@ -75,10 +86,8 @@ def insert_company(companies_table, companie_name, boursorama_cie_id, entry_date
         
 
 def insert_history(history_table, session, companie_id,data):
-    existing_company = session.query(history_table).filter_by(COMPANIE_ID=companie_id).first()
-    
-    if existing_company is None:
-        # Préparer l'insertion
+
+    if isinstance(data,list) :
         for i in range(len(data['Day'])) :
             insert_stmt = history_table.insert().values(
                 COMPANIE_ID=companie_id,
@@ -92,26 +101,33 @@ def insert_history(history_table, session, companie_id,data):
             session.execute(insert_stmt)
             session.commit()
             
+    else : 
+        insert_stmt = history_table.insert().values(
+                COMPANIE_ID=companie_id,
+                DATE=data['Day'],
+                OPENING=data['Opening'],
+                HIGHEST=data['Highest'],
+                LOWEST=data['Lowest'],
+                CLOSING=data['Closing'],
+                VOLUME=data['Volume']
+            )
+        session.execute(insert_stmt)
+        session.commit()
+        
             
 def insert_streaming(streaming_table, session, companie_id,data):
-    existing_company = session.query(streaming_table).filter_by(COMPANIE_ID=companie_id).first()
-    
-    if existing_company is None:
-        # Préparer l'insertion
-        for i in range(len(data)) :
-            day = data['Day'][i]
-            date_hist = get_date(int(day))
-            insert_stmt = streaming_table.insert().values(
-                COMPANIE_ID=companie_id,
-                DATE=date_hist,
-                OPENING=data['Opening'][i],
-                HIGHEST=data['Highest'][i],
-                LOWEST=data['Lowest'][i],
-                CLOSING=data['Closing'][i],
-                VOLUME=data['Volume'][i]
-            )
-            session.execute(insert_stmt)
-            session.commit()            
+
+    insert_stmt = streaming_table.insert().values(
+        COMPANIE_ID=companie_id,
+        DATE=data['Day'],
+        OPENING=data['Opening'],
+        HIGHEST=data['Highest'],
+        LOWEST=data['Lowest'],
+        CLOSING=data['Closing'],
+        VOLUME=data['Volume']
+    )
+    session.execute(insert_stmt)
+    session.commit()            
             
             
 def delete_streaming_data(nbre_jours, session, streaming_table) :
@@ -119,6 +135,7 @@ def delete_streaming_data(nbre_jours, session, streaming_table) :
     delete_stmt = delete(streaming_table).where(streaming_table.c.DATE < date)
     session.execute(delete_stmt)
     session.commit()
+    
     
 def update_exit_date(session, companies_table,missing_element) :
     stmt = update(companies_table).where(companies_table.c.BOURSORAMA_CIE_ID == missing_element).values(EXIT_DATE=today)

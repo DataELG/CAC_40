@@ -11,6 +11,20 @@ def get_date(date) :
     day_formatee = day_clean.strftime("%Y-%m-%d")
     return day_formatee
 
+def decode_datetime(date_str):
+    year = int("20" + date_str[:2])  # "24" -> 2024
+    month = int(date_str[2:4])       # "08" -> Août
+    day = int(date_str[4:6])         # "13" -> 13
+    time_in_minutes = int(date_str[6:10])  # "1057" -> 1057 minutes depuis minuit
+
+    # Calcul de l'heure et des minutes à partir des minutes écoulées depuis minuit
+    hours = time_in_minutes // 60   # Calcul du nombre d'heures
+    minutes = time_in_minutes % 60  # Calcul des minutes restantes
+
+    return datetime(year, month, day, hours, minutes) 
+    
+    
+
 
 def fetch_companies_info() :
     companies_dict = {}
@@ -34,23 +48,17 @@ def fetch_companies_info() :
         return companies_dict
     
     
-def fetch_data(boursorama_cie_ID, type) :
+def fetch_history_data(boursorama_cie_ID) :
     '''
     Arguments : Companies_id
     Type : history or streaming
     Return dictionnary with data
     
     '''
+    url = f'https://www.boursorama.com/bourse/action/graph/ws/GetTicksEOD?symbol={boursorama_cie_ID}&length=1095&period=1&guid='
     
-    if type == 'history' : 
-        url = f'https://www.boursorama.com/bourse/action/graph/ws/GetTicksEOD?symbol={boursorama_cie_ID}&length=1095&period=1&guid='
-        
-    if type == 'streaming' :
-        url = f'https://www.boursorama.com/bourse/action/graph/ws/GetTicksEOD?symbol={boursorama_cie_ID}&length=1&period=0&guid='
-
-        
     dict_result_history = {}
-
+        
     day_list = []
     opening_list = []
     highest_list = []
@@ -81,4 +89,44 @@ def fetch_data(boursorama_cie_ID, type) :
             dict_result_history['Volume'] = volume_list
             return dict_result_history
 
+
+
+def fetch_streaming_data(boursorama_cie_ID) :
+    url = f'https://www.boursorama.com/bourse/action/graph/ws/GetTicksEOD?symbol={boursorama_cie_ID}&length=1&period=0&guid='
     
+    dict_streaming = {}
+    
+    response = requests.get(url)
+    if response.status_code == 200:
+        response_json = response.json()
+        data = response_json['d']['QuoteTab'][-1]
+        date = decode_datetime(str(data['d']))
+        dict_streaming['Day'] = date
+        dict_streaming['Opening'] = data['o']
+        dict_streaming['Highest'] = data['h']
+        dict_streaming['Lowest'] = data['l']
+        dict_streaming['Closing'] = data['c']
+        dict_streaming['Volume'] = data['v']
+        return dict_streaming
+
+
+def fetch_yesterday_history(boursorama_cie_ID) :
+
+    url = f'https://www.boursorama.com/bourse/action/graph/ws/GetTicksEOD?symbol={boursorama_cie_ID}&length=1&period=0&guid='
+
+        
+    dict_result_history = {}
+
+    response = requests.get(url)
+    if response.status_code == 200:
+        response_json = response.json()
+        data = response_json['d']['qv']
+        day = data['d']
+        day_formatee = get_date(day)
+        dict_result_history['Day'] = day_formatee
+        dict_result_history['Opening'] = data['o']
+        dict_result_history['Highest'] = data['h']
+        dict_result_history['Lowest'] = data['l']
+        dict_result_history['Closing'] = data['c']
+        dict_result_history['Volume'] = data['v']
+        return dict_result_history
