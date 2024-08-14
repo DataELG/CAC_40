@@ -57,8 +57,6 @@ def fetch_all_CAC40_cie(companies_table, session) :
     result = session.execute(stmt)
     result_list = [row[0] for row in result]
     return result_list
-    
-
 
 
 def get_id(companies_table, boursorama_id, companie_session) :
@@ -71,18 +69,14 @@ def get_id(companies_table, boursorama_id, companie_session) :
     
 
 def insert_company(companies_table, companie_name, boursorama_cie_id, entry_date, session):
-    # Vérifier si la valeur BOURSORAMA_CIE_ID existe déjà
-    existing_company = session.query(companies_table).filter_by(BOURSORAMA_CIE_ID=boursorama_cie_id).first()
-    
-    if existing_company is None:
-        # Préparer l'insertion
-        insert_stmt = companies_table.insert().values(
-            COMPANIE_NAME=companie_name,
-            BOURSORAMA_CIE_ID=boursorama_cie_id,
-            ENTRY_DATE=entry_date
-        )
-        session.execute(insert_stmt)
-        session.commit()
+
+    insert_stmt = companies_table.insert().values(
+        COMPANIE_NAME=companie_name,
+        BOURSORAMA_CIE_ID=boursorama_cie_id,
+        ENTRY_DATE=entry_date
+    )
+    session.execute(insert_stmt)
+    session.commit()
         
 
 def insert_history(history_table, session, companie_id,data):

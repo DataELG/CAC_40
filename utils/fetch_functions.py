@@ -25,7 +25,6 @@ def decode_datetime(date_str):
     
     
 
-
 def fetch_companies_info() :
     companies_dict = {}
     for i in range(1,3) :
