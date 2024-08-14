@@ -2,26 +2,26 @@ from utils.fetch_functions import *
 from utils.bdd_functions import *
 from utils.req_functions import *
 from datetime import date
-import pandas as pd
+from send_email import *
 
 today = date.today()
 
 # Delare sessions
-session_companies_table, companies_table = create_session('COMPANIES')
-session_history_table, history_table = create_session('COMPANIES_HISTORY') 
-session_streaming_table, streaming_table = create_session('STREAMING')  
+session_companies_table, companies_table, engine = create_session('COMPANIES')
+session_history_table, history_table, engine = create_session('COMPANIES_HISTORY') 
+session_streaming_table, streaming_table, engine = create_session('STREAMING')  
 
 
 # Delete stream + 180 jours - FONCTIONNE 14/08
 # delete_streaming_data(180, session_streaming_table, streaming_table)
 
 
-# Add day data of the day before to history - FONCTIONNE 14/08 (data du 13 août ajouté)
+# Add day data of the TODAY END OF DAY- FONCTIONNE 14/08 (data du 13 et 14 août ajouté)
 # list_cac40_cie = fetch_all_CAC40_cie(companies_table,session_companies_table)  # ajout data actual and anciennt cac40 cie
 # for boursorama_cie_ID in list_cac40_cie :
 #     cie_id = get_id(companies_table, boursorama_cie_ID, session_companies_table)
 #     print(cie_id)
-#     data = fetch_yesterday_history(boursorama_cie_ID)
+#     data = fetch_today_history(boursorama_cie_ID)
 #     data_date = data['Day']
 #     existing_entry = session_history_table.query(history_table).filter_by(COMPANIE_ID=cie_id, DATE=data_date).first()
 #     if existing_entry is None:     # Si la date n'exite pas déjà pour cet ID :

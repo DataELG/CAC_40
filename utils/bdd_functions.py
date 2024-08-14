@@ -26,7 +26,7 @@ def create_session(table_name) :
 
     Session = sessionmaker(bind=engine)
     session = Session()
-    return session, table
+    return session, table, engine
 
 
 def fetch_new_companies(companies_table, session) :

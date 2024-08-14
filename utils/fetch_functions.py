@@ -109,7 +109,7 @@ def fetch_streaming_data(boursorama_cie_ID) :
         return dict_streaming
 
 
-def fetch_yesterday_history(boursorama_cie_ID) :
+def fetch_today_history(boursorama_cie_ID) :
 
     url = f'https://www.boursorama.com/bourse/action/graph/ws/GetTicksEOD?symbol={boursorama_cie_ID}&length=1&period=0&guid='
 
@@ -119,7 +119,7 @@ def fetch_yesterday_history(boursorama_cie_ID) :
     response = requests.get(url)
     if response.status_code == 200:
         response_json = response.json()
-        data = response_json['d']['qv']
+        data = response_json['d']['qd']
         day = data['d']
         day_formatee = get_date(day)
         dict_result_history['Day'] = day_formatee
