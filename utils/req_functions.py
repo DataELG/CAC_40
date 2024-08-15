@@ -5,10 +5,34 @@ import requests
 
 
 def request_url(url, headers=None, timeout=10, max_retries=3, backoff_factor=0.3):
-    # Créer une session pour maintenir les connexions ouvertes et gérer les retries
+    '''
+    Send a GET request to a specified URL with retries and exponential backoff.
+
+    Arguments
+    ----------
+    url : str
+        The URL to which the GET request will be sent.
+    headers : dict, optional
+        A dictionary of HTTP headers to send with the request. If not provided, a default 
+        User-Agent header is used.
+    timeout : int, optional
+        The number of seconds to wait for the server to send data before giving up. Default is 10 seconds.
+    max_retries : int, optional
+        The maximum number of retries allowed if the request fails. Default is 3 retries.
+    backoff_factor : float, optional
+        A factor that determines the length of time to wait between retries, with exponential backoff. 
+        Default is 0.3.
+
+    Returns
+    ----------
+    BeautifulSoup object or None
+        Returns a BeautifulSoup object containing the parsed HTML content if the request 
+        is successful. Returns None if the request fails.
+    '''
+    # Create a session to maintain open connections and handle retries
     session = requests.Session()
     
-    # Configurer les retries avec gestion de l'attente exponentielle
+    # Configure retries with exponential backoff management
     retry = Retry(
         total=max_retries,
         read=max_retries,
@@ -27,10 +51,9 @@ def request_url(url, headers=None, timeout=10, max_retries=3, backoff_factor=0.3
         }
     
     try:
-        # Effectuer la requête
         response = session.get(url, headers=headers, timeout=timeout)
-        response.raise_for_status()  # Vérifier si le statut est 200 (OK)
-        return BeautifulSoup(response.content, 'html.parser') # Retourner le contenu de la réponse
+        response.raise_for_status()  # check statut 
+        return BeautifulSoup(response.content, 'html.parser') 
     except requests.exceptions.RequestException as e:
         print(f"Erreur lors de la requête: {e}")
         return None

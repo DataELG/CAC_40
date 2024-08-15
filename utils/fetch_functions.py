@@ -1,31 +1,86 @@
 import re
-from datetime import datetime,timedelta, date
+from datetime import date
 from utils.req_functions import *
 from utils.bdd_functions import *
+from utils.date_functions import *
 
-today = date.today()
 
-def get_date(date) :
-    date_reference = datetime(1970, 1, 1)
-    day_clean = date_reference + timedelta(days=date)
-    day_formatee = day_clean.strftime("%Y-%m-%d")
-    return day_formatee
+def fetch_new_companies(companies_table, session) :
+    '''
+    Fetch a list of company IDs added to the database today.
 
-def decode_datetime(date_str):
-    year = int("20" + date_str[:2])  # "24" -> 2024
-    month = int(date_str[2:4])       # "08" -> Août
-    day = int(date_str[4:6])         # "13" -> 13
-    time_in_minutes = int(date_str[6:10])  # "1057" -> 1057 minutes depuis minuit
+    Arguments
+    ----------
+    companies_table : SQLAlchemy Table object
+        The table object representing the companies in the database.
+    session : SQLAlchemy session object
+        The session object used to execute the query in the database.
 
-    # Calcul de l'heure et des minutes à partir des minutes écoulées depuis minuit
-    hours = time_in_minutes // 60   # Calcul du nombre d'heures
-    minutes = time_in_minutes % 60  # Calcul des minutes restantes
+    Returns
+    ----------
+    result_list : list
+        A list of company IDs (BOURSORAMA_CIE_ID) for companies added today.
+    '''
+    stmt = select(companies_table.c.BOURSORAMA_CIE_ID).where(companies_table.c.ENTRY_DATE == date.today())
+    result = session.execute(stmt)
+    result_list = [row[0] for row in result]
+    return result_list
 
-    return datetime(year, month, day, hours, minutes) 
-    
-    
+
+def fetch_active_CAC40_cie(companies_table, session) :
+    '''
+    Fetch a list of currently active CAC40 companies.
+
+    Arguments
+    ----------
+    companies_table : SQLAlchemy Table object
+        The table object representing the companies in the database.
+    session : SQLAlchemy session object
+        The session object used to execute the query in the database.
+
+    Returns
+    ----------
+    result_list : list
+        A list of active company IDs (BOURSORAMA_CIE_ID) for companies currently in the CAC40.
+    '''
+    stmt = select(companies_table.c.BOURSORAMA_CIE_ID).where(companies_table.c.EXIT_DATE.is_(None))
+    result = session.execute(stmt)
+    result_list = [row[0] for row in result]
+    return result_list
+
+
+def fetch_all_CAC40_cie(companies_table, session) :
+    '''
+    Fetch a list of all CAC40 companies, both active and historical.
+
+    Arguments
+    ----------
+    companies_table : SQLAlchemy Table object
+        The table object representing the companies in the database.
+    session : SQLAlchemy session object
+        The session object used to execute the query in the database.
+
+    Returns
+    ----------
+    result_list : list
+        A list of company IDs (BOURSORAMA_CIE_ID) for all companies that have been part of the CAC40 index,
+        including both active and historical members.
+    '''
+    stmt = select(companies_table.c.BOURSORAMA_CIE_ID)
+    result = session.execute(stmt)
+    result_list = [row[0] for row in result]
+    return result_list
+
 
 def fetch_companies_info() :
+    '''
+    Get list of companies part of CAC40
+    
+    Returns
+    ----------  
+    dict 
+        dictionnary {companie_name : boursorama_companie_ID} 
+    '''
     companies_dict = {}
     for i in range(1,3) :
         url = f'https://www.boursorama.com/bourse/actions/cotations/page-{i}?quotation_az_filter%5Bmarket%5D=1rPCAC'
@@ -49,10 +104,15 @@ def fetch_companies_info() :
     
 def fetch_history_data(boursorama_cie_ID) :
     '''
-    Arguments : Companies_id
-    Type : history or streaming
-    Return dictionnary with data
-    
+    Arguments
+    ----------
+    boursorama_cie_ID : str 
+        Found in COMPANIES table  
+        
+    Returns
+    ----------  
+    dict 
+        a dictionnary of 3 year-history by day
     '''
     url = f'https://www.boursorama.com/bourse/action/graph/ws/GetTicksEOD?symbol={boursorama_cie_ID}&length=1095&period=1&guid='
     
@@ -91,6 +151,18 @@ def fetch_history_data(boursorama_cie_ID) :
 
 
 def fetch_streaming_data(boursorama_cie_ID) :
+    '''
+    Arguments
+    ----------
+    boursorama_cie_ID : str 
+        Found in COMPANIES table  
+        
+    Returns
+    ----------  
+    dict 
+        a dictionnary of streaming data
+    '''
+    
     url = f'https://www.boursorama.com/bourse/action/graph/ws/GetTicksEOD?symbol={boursorama_cie_ID}&length=1&period=0&guid='
     
     dict_streaming = {}
@@ -110,6 +182,17 @@ def fetch_streaming_data(boursorama_cie_ID) :
 
 
 def fetch_today_history(boursorama_cie_ID) :
+    '''
+    Arguments
+    ----------
+    boursorama_cie_ID : str 
+        Found in COMPANIES table  
+        
+    Returns
+    ----------  
+    dict 
+        a dictionnary of the recalculed (by boursorama) data of the day 
+    '''
 
     url = f'https://www.boursorama.com/bourse/action/graph/ws/GetTicksEOD?symbol={boursorama_cie_ID}&length=1&period=0&guid='
 
@@ -119,6 +202,7 @@ def fetch_today_history(boursorama_cie_ID) :
     response = requests.get(url)
     if response.status_code == 200:
         response_json = response.json()
+        print(response_json)
         data = response_json['d']['qd']
         day = data['d']
         day_formatee = get_date(day)

@@ -1,8 +1,6 @@
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-from email import encoders
 from dotenv import load_dotenv
 import os
 
@@ -140,7 +138,7 @@ def send_email_with_attachment(html_table) :
     <h2>Bonjour,</h2>
     <p>Voici le rapport des variations de prix et de volumes pour aujourd'hui :</p>
     {html_table}
-    <p>Cordialement,<br>Votre Nom</p>
+    <p>Cordialement,<br>DataTradeX</p>
     """
 
     # Attacher le corps de l'email
