@@ -10,7 +10,7 @@ from datetime import date
 
 app = func.FunctionApp()
 
-@app.timer_trigger(schedule="0 50 6 * * 1-5", arg_name="myTimer", run_on_startup=False,
+@app.timer_trigger(schedule="0 50 8 * * 1-5", arg_name="myTimer", run_on_startup=False,
               use_monitor=False) 
 def check_new_company(myTimer: func.TimerRequest) -> None:
 
@@ -57,7 +57,7 @@ def check_new_company(myTimer: func.TimerRequest) -> None:
     logging.info('Python timer trigger function executed.')
 
 
-@app.timer_trigger(schedule="0 */10 7-16 * * 1-5", arg_name="myTimer", run_on_startup=False,
+@app.timer_trigger(schedule="0 */10 9-18 * * 1-5", arg_name="myTimer", run_on_startup=False,
               use_monitor=False) 
 def get_trading_data(myTimer: func.TimerRequest) -> None:
     # Delare sessions
@@ -81,7 +81,7 @@ def get_trading_data(myTimer: func.TimerRequest) -> None:
 
     logging.info('Python timer trigger function executed.')
 
-@app.timer_trigger(schedule="0 50 15 * * 1-5", arg_name="myTimer", run_on_startup=False,
+@app.timer_trigger(schedule="0 50 17 * * 1-5", arg_name="myTimer", run_on_startup=False,
               use_monitor=False) 
 def cleaning_end_day(myTimer: func.TimerRequest) -> None:
 
