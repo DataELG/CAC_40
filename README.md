@@ -7,6 +7,7 @@ Ce projet vise à automatiser la collecte des données de transactions des entre
 - **Vérification quotidienne des entreprises** : Mise à jour automatique de la base de données des entreprises du CAC 40.
 - **Collecte de données en temps réel** : Récupération des données de trading toutes les 10 minutes.
 - **Rapports quotidiens** : Génération et envoi d'un rapport de fin de journée.
+- - **Nettoyage** : Nettoyage de l'historique N-3 et des données de streaming M-6.
 
 ## Prérequis
 - Compte Azure avec accès aux services Azure Functions, Azure SQL Database
