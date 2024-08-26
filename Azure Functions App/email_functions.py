@@ -3,6 +3,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import pandas as pd
 import os
+import logging
 
 
 def create_report(engine) :
@@ -82,36 +83,60 @@ def send_email(html_table) :
     None
         The function does not return any value but prints success or error messages.
     '''
+
+    # Configuration des logs
+    logging.basicConfig(level=logging.INFO)
+
+    # Récupération des variables d'environnement
     sender = os.getenv('EMAIL')
     password = os.getenv('PASSWORD')
     receiver = os.getenv('RECIPIENT')
+    # Afficher les valeurs des variables d'environnement dans les logs
+    logging.info(f"EMAIL: {sender}")
+    logging.info(f"PASSWORD: {password is not None}")  # On ne log pas les mots de passe en clair pour des raisons de sécurité
+    logging.info(f"RECIPIENT: {receiver}")
 
-    # Create message object
-    msg = MIMEMultipart()
-    msg['From'] = sender
-    msg['To'] = receiver
-    msg['Subject'] = 'Rapport du Marché - Variation des Actions'
+    logging.info("Les informations de l'expéditeur et du destinataire ont été récupérées.")
 
-    # e-mail body
-    body = f"""
-    <h2>Bonjour,</h2>
-    <p>Voici le rapport des variations de prix et de volumes pour aujourd'hui :</p>
-    {html_table}
-    <p>Cordialement,<br>DataTradeX</p>
-    """
-
-    # Attached e-mail body
-    msg.attach(MIMEText(body, 'html'))
-
-    # Connenxion to server
+    # Création de l'objet message
     try:
-        server = smtplib.SMTP('smtp.office365.com', 587) 
+        msg = MIMEMultipart()
+        msg['From'] = sender
+        msg['To'] = receiver
+        msg['Subject'] = 'Rapport du Marché - Variation des Actions'
+        logging.info("L'objet message a été créé avec succès.")
+    except Exception as e:
+        logging.error(f"Erreur lors de la création de l'objet message : {e}")
+
+    # Corps de l'email
+    try:
+        body = f"""
+        <h2>Bonjour,</h2>
+        <p>Voici le rapport des variations de prix et de volumes pour aujourd'hui :</p>
+        {html_table}
+        <p>Cordialement,<br>DataTradeX</p>
+        """
+        msg.attach(MIMEText(body, 'html'))
+        logging.info("Le corps de l'email a été ajouté avec succès.")
+    except Exception as e:
+        logging.error(f"Erreur lors de la création du corps de l'email : {e}")
+
+    # Connexion au serveur et envoi de l'email
+    try:
+        server = smtplib.SMTP('smtp.office365.com', 587)
+        logging.info("Connexion au serveur SMTP établie.")
+        
         server.starttls()
+        logging.info("La connexion sécurisée TLS a été établie.")
+
         server.login(sender, password)
+        logging.info("Authentification réussie.")
+
         text = msg.as_string()
         server.sendmail(sender, receiver, text)
+        logging.info("Email envoyé avec succès.")
+
         server.quit()
-        print("Email envoyé avec succès.")
+        logging.info("Connexion au serveur SMTP terminée.")
     except Exception as e:
-        print(f"Erreur lors de l'envoi de l'email : {e}")
-        
+        logging.error(f"Erreur lors de l'envoi de l'email : {e}")

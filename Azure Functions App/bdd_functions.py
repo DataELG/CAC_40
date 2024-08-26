@@ -1,5 +1,5 @@
-from utils.fetch_functions import *
-from utils.date_functions import *
+from fetch_functions import *
+from date_functions import *
 from datetime import datetime, timedelta
 from sqlalchemy import create_engine, MetaData, Table, select, delete, update
 from sqlalchemy.orm import sessionmaker
@@ -179,9 +179,9 @@ def insert_streaming(streaming_table, session, companie_id,data):
     session.commit()            
             
             
-def delete_streaming_data(nbre_jours, session, streaming_table) :
+def delete_data(nbre_jours, session, table) :
     '''
-    Delete streaming data older than a specified number of days.
+    Delete data older than a specified number of days.
 
     Arguments
     ----------
@@ -189,7 +189,7 @@ def delete_streaming_data(nbre_jours, session, streaming_table) :
         The number of days to keep streaming data. Records older than this will be deleted.
     session : SQLAlchemy session object
         The session object used to execute the delete operation and commit the changes.
-    streaming_table : SQLAlchemy Table object
+    table : SQLAlchemy Table object
         The table object representing the streaming data records in the database.
 
     Returns
@@ -198,7 +198,7 @@ def delete_streaming_data(nbre_jours, session, streaming_table) :
         The function does not return any value.
     '''
     date = datetime.now() - timedelta(days=nbre_jours)
-    delete_stmt = delete(streaming_table).where(streaming_table.c.DATE < date)
+    delete_stmt = delete(table).where(table.c.DATE < date)
     session.execute(delete_stmt)
     session.commit()
     
@@ -224,5 +224,3 @@ def update_exit_date(session, companies_table,missing_element) :
     stmt = update(companies_table).where(companies_table.c.BOURSORAMA_CIE_ID == missing_element).values(EXIT_DATE=date.today())
     session.execute(stmt)
     session.commit()
-
-

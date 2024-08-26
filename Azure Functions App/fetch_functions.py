@@ -1,8 +1,8 @@
 import re
 from datetime import date
-from utils.req_functions import *
-from utils.bdd_functions import *
-from utils.date_functions import *
+from req_functions import *
+from bdd_functions import *
+from date_functions import *
 
 
 def fetch_new_companies(companies_table, session) :
@@ -202,7 +202,6 @@ def fetch_today_history(boursorama_cie_ID) :
     response = requests.get(url)
     if response.status_code == 200:
         response_json = response.json()
-        print(response_json)
         data = response_json['d']['qd']
         day = data['d']
         day_formatee = get_date(day)
